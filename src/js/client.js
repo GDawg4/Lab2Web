@@ -8,26 +8,39 @@ const renderSquare = (color, id, size = 100, isOld = false) => {
     luz.style.height = `${size}px`;
     luz.style.backgroundColor = (color % 2 == 0) ? "black": "white";
 
-    luz.onmouseover = () => {
-        if (!ARE_OCCUPIED[Math.floor(luz.id/8)][luz.id%8]){
+    /*luz.onmouseover = () => {
+        if (isValid(luz.id)){
             luz.appendChild(showChip(CURRENT_TURN));
         }
     }
     luz.onmouseout = () => {
-        if (!ARE_OCCUPIED[Math.floor(luz.id/8)][luz.id%8]){
-            luz.removeChild(luz.firstChild);
-        }
-    }
-    luz.onclick = () => {
         if (isValid(luz.id)){
             luz.removeChild(luz.firstChild);
+        }
+    }*/
+    luz.onclick = () => {
+        if (isValid(luz.id)){
+            //luz.removeChild(luz.firstChild);
+            convert(parseInt(luz.id));
             ARE_OCCUPIED[Math.floor(luz.id/8)][luz.id%8] = true;
             WHO_IS_THERE[Math.floor(luz.id/8)][luz.id%8] = CURRENT_TURN;
-            luz.appendChild(renderChip(CURRENT_TURN));
-            console.log("valido")
-        }
+            luz.appendChild(renderChip(CURRENT_TURN))
+            console.log(WHO_IS_THERE)
+            console.log(CURRENT_TURN)
+        };
     };
     return luz;
+}
+
+const convert = (id) =>{
+    console.log("llego 1")
+    if (startToCheckRight(parseInt(id))){
+        console.log("llego 2")
+        convertToTheLeft(id);
+    } else if (startToCheckLeft(id)){
+        console.log("llego 3")
+        convertToTheRight(parseInt(id));
+    }
 }
 
 const renderColumn = (columnIndex) => {
@@ -46,7 +59,7 @@ const renderChip = () => {
     const chip = document.createElement("div");
     chip.style.width = "100px";
     chip.style.height = "100px";
-    chip.style.backgroundColor = CURRENT_TURN ? "teal": "maroon";
+    chip.style.backgroundColor = CURRENT_TURN ? playingColors[0]: playingColors[1];
     chip.style.borderRadius = "50px";
     CURRENT_TURN = !CURRENT_TURN;
     return chip;
@@ -57,7 +70,7 @@ const showChip = (player1) => {
     chip.style.width = "100px";
     chip.style.height = "100px";
     chip.style.opacity = 0.5;
-    chip.style.backgroundColor = player1 ? "teal": "maroon";
+    chip.style.backgroundColor = player1 ? playingColors[0]: playingColors[1];
     chip.style.borderRadius = "50px";
     return chip;
 }
@@ -80,34 +93,98 @@ const checkUp = (id) => {
 
 const deepCheckRight = (id) =>{
     if (id < 8){
-        console.log(false, "se quedó sin espacio");
+        // console.log(false, "se quedó sin espacio");
+        return false;
+    }
+    if (isEmpty(id-8)){
         return false;
     }
     if (checkToTheLeft(id) != CURRENT_TURN){
-        console.log("We must go deeper, now checking", id);
+        // console.log("We must go deeper, now checking", id);
         return deepCheckRight(id - 8);
     }
     if (checkToTheLeft(id) == CURRENT_TURN){
-        console.log(true, "CAN PLAY!!!!")
+        // console.log(true, "CAN PLAY!!!!")
         return true;
     }
 }
 
 const startToCheckRight = (id) =>{
+    /*console.log(id, "currently checking");
+    console.log(isEmpty(id), "is empty");
+    console.log(whoIsThere(id), "who is there");
+    console.log(CURRENT_TURN, "played");*/
+    if ((parseInt(id) < 8) || isEmpty(parseInt(id)-8) || checkToTheLeft(parseInt(id)) == CURRENT_TURN){
+        // console.log(false, "cannot play");
+        return false;
+    }
+    // console.log("Getting more info")
+    return deepCheckRight(parseInt(id));
+}
+
+const convertToTheLeft = (id) =>{
+    /*if ((CURRENT_TURN && document.getElementById("mainBoard").childNodes[Math.floor((id-8)/8)].childNodes[(id-8)%8].childNodes[0].style.backgroundColor == playingColors[1])
+    ||(!CURRENT_TURN && document.getElementById("mainBoard").childNodes[Math.floor((id-8)/8)].childNodes[(id-8)%8].childNodes[0].style.backgroundColor == playingColors[0])){
+        document.getElementById("mainBoard").childNodes[Math.floor((id-8)/8)].childNodes[(id-8)%8].childNodes[0].style.backgroundColor = CURRENT_TURN ? playingColors[0]: playingColors[1]
+        WHO_IS_THERE[Math.floor(id/8)][id%8] = CURRENT_TURN;
+        convertToTheLeft(id-8);
+    }*/
+    if (whoIsThere(id-8) != CURRENT_TURN){
+        console.log(id-8)
+        document.getElementById("mainBoard").childNodes[Math.floor((id-8)/8)].childNodes[(id-8)%8].childNodes[0].style.backgroundColor = CURRENT_TURN ? playingColors[0]: playingColors[1]
+        WHO_IS_THERE[Math.floor((id-8)/8)][(id-8)%8] = CURRENT_TURN;
+        convertToTheLeft(id-8);
+    }
+}
+
+const deepCheckLeft = (id) =>{
+    if (id > 55){
+        console.log(false, "se quedó sin espacio");
+        return false;
+    }
+    if (isEmpty(id+8)){
+        return false;
+    }
+    if (checkToTheRight(id) != CURRENT_TURN){
+        console.log("We must go deeper, now checking", id);
+        return deepCheckLeft(parseInt(id) + 8);
+    }
+    if (checkToTheRight(id) == CURRENT_TURN){
+        console.log(true, "CAN PLAY!!!!")
+        return true;
+    }
+}
+
+const startToCheckLeft = (id) =>{
     console.log(id, "currently checking");
+    console.log(parseInt(id) + 8, "check if empty");
     console.log(isEmpty(id), "is empty");
     console.log(whoIsThere(id), "who is there");
     console.log(CURRENT_TURN, "played");
-    if ((id < 8) || isEmpty(id-8) || checkToTheLeft(id) == CURRENT_TURN){
+    if ((parseInt(id) > 55) || isEmpty(parseInt(id)+8) || checkToTheRight(parseInt(id)) == CURRENT_TURN){
         console.log(false, "cannot play");
         return false;
     }
     console.log("Getting more info")
-    return deepCheckRight(id);
+    return deepCheckLeft(parseInt(id));
+}
+
+const convertToTheRight = (id) =>{
+    /*if ((CURRENT_TURN && document.getElementById("mainBoard").childNodes[Math.floor((id-8)/8)].childNodes[(id-8)%8].childNodes[0].style.backgroundColor == playingColors[1])
+    ||(!CURRENT_TURN && document.getElementById("mainBoard").childNodes[Math.floor((id-8)/8)].childNodes[(id-8)%8].childNodes[0].style.backgroundColor == playingColors[0])){
+        document.getElementById("mainBoard").childNodes[Math.floor((id-8)/8)].childNodes[(id-8)%8].childNodes[0].style.backgroundColor = CURRENT_TURN ? playingColors[0]: playingColors[1]
+        WHO_IS_THERE[Math.floor(id/8)][id%8] = CURRENT_TURN;
+        convertToTheLeft(id-8);
+    }*/
+    if (whoIsThere(id+8) != CURRENT_TURN){
+        document.getElementById("mainBoard").childNodes[Math.floor((id+8)/8)].childNodes[(id+8)%8].childNodes[0].style.backgroundColor = CURRENT_TURN ? playingColors[0]: playingColors[1]
+        WHO_IS_THERE[Math.floor((id+8)/8)][(id+8)%8] = CURRENT_TURN;
+        convertToTheRight(id+8);
+    }
 }
 
 const isValid = (id) => {
-    return isEmpty(id) && startToCheckRight(id);
+    return isEmpty(id) && (startToCheckRight(id) || startToCheckLeft(id));
 }
 
 const isEmpty = (id) => {
@@ -146,6 +223,8 @@ const APP_STATE = {
 
 };
 
+const playingColors = ["teal", "maroon"];
+
 const currentState = {};
 
 let CURRENT_TURN = true;
@@ -165,13 +244,15 @@ let WHO_IS_THERE =
     [false, false, false, false, false, false, false, false]]
 
 let ARE_OCCUPIED =
-    [[false, false, false, false, false, false, false, false],
+    [
+    [false, false, false, false, false, false, false, false],
     [false, false, false, false, false, false, false, false],
     [false, false, false, false, false, false, false, false],
     [false, false, false, true, true, false, false, false],
     [false, false, false, true, true, false, false, false],
     [false, false, false, false, false, false, false, false],
     [false, false, false, false, false, false, false, false],
-    [false, false, false, false, false, false, false, false]];
+    [false, false, false, false, false, false, false, false]
+    ];
 
 render(root, APP_STATE);
