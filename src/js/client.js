@@ -35,31 +35,31 @@ const convert = (id) =>{
     if (startToCheckRight(parseInt(id))){
         console.log("llego 2")
         convertToTheLeft(id);
-    } else if (startToCheckLeft(id)){
+    } if (startToCheckLeft(id)){
         console.log("llego 3")
         convertToTheRight(parseInt(id));
     }
-    else if (startToCheckUp(id)){
+    if (startToCheckUp(id)){
         console.log("llego 3")
         convertDown(parseInt(id));
     }
-    else if (startToCheckDown(id)){
+    if (startToCheckDown(id)){
         console.log("llego 4")
         convertUp(parseInt(id));
     }
-    else if (startToCheckUpRight(id)){
+    if (startToCheckUpRight(id)){
         console.log("llego 5")
         convertDownLeft(parseInt(id));
     }
-    else if (startToCheckDownRight(id)){
+    if (startToCheckDownRight(id)){
         console.log("llego 6")
         convertUpLeft(parseInt(id));
     }
-    else if (startToCheckUpLeft(id)){
+    if (startToCheckUpLeft(id)){
         console.log("llego 7")
         convertDownRight(parseInt(id));
     }
-    else if (startToCheckDownLeft(id)){
+    if (startToCheckDownLeft(id)){
         console.log("llego 8")
         convertUpRight(parseInt(id));
     }
@@ -283,7 +283,7 @@ const deepCheckUpRight = (id) =>{
     }
     if (checkDownLeft(id) != CURRENT_TURN){
         console.log("We must go deeper, now checking", id-7);
-        return deepCheckDown(parseInt(id) - 7 );
+        return deepCheckRight(parseInt(id) - 7 );
     }
     if (checkDownLeft(id) == CURRENT_TURN){
         console.log(true, "CAN PLAY!!!!")
